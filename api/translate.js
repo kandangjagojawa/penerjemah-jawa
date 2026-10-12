@@ -12,10 +12,14 @@ export default async function handler(req, res) {
     if (!text || !targetStyle) return res.status(400).json({ error: 'Teks dan target style wajib diisi.' });
 
     try {
-        // Menggunakan library OpenAI, tapi diarahkan ke server OpenRouter
         const openai = new OpenAI({
             baseURL: "https://openrouter.ai/api/v1",
             apiKey: process.env.OPENROUTER_API_KEY,
+            // OpenRouter menyarankan pengiriman header ini untuk model gratis
+            defaultHeaders: {
+                "HTTP-Referer": "https://kandangjago.github.io/penerjemah-jawa",
+                "X-Title": "Penerjemah Jawa"
+            }
         });
 
         const systemInstruction = `Kamu ahli tata bahasa Jawa. Terjemahkan teks dari Bahasa Indonesia ke Bahasa Jawa ragam ${targetStyle}.
@@ -24,8 +28,8 @@ Krama Inggil: Kosakata krama, imbuhan krama. Kata ganti/kerja untuk orang yang d
 Hanya berikan hasil terjemahannya saja tanpa penjelasan tambahan.`;
 
         const completion = await openai.chat.completions.create({
-            // Memilih model Llama 3 versi gratis yang super cepat
-            model: "meta-llama/llama-3.8b-instruct:free",
+            // Memperbaiki nama model menggunakan tanda hubung (-)
+            model: "meta-llama/llama-3-8b-instruct:free",
             messages: [
                 { role: "system", content: systemInstruction },
                 { role: "user", content: `Terjemahkan ke ${targetStyle}:\n"${text}"` }
@@ -36,8 +40,8 @@ Hanya berikan hasil terjemahannya saja tanpa penjelasan tambahan.`;
         const responseText = completion.choices[0].message.content;
         return res.status(200).json({ result: responseText.trim() });
     } catch (error) {
-        console.error("Error dari OpenRouter:", error);
-        return res.status(500).json({ error: 'Gagal memproses permintaan AI. Coba lagi.' });
+        // Log ini akan mencatat penyebab pasti jika masih gagal
+        console.error("Error detail dari OpenRouter:", error.message || error);
+        return res.status(500).json({ error: 'Gagal memproses permintaan AI. Cek Log Vercel.' });
     }
 }
-
