@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penerjemah Bahasa Jawa</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        textarea { width: 100%; height: 100px; margin-bottom: 12px; padding: 8px; }
+        select, button { padding: 10px 16px; margin-bottom: 20px; cursor: pointer; }
+        .output-box { background: #f4f4f4; border-left: 4px solid #0070f3; padding: 15px; min-height: 50px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h2>Penerjemah Indonesia ke Jawa</h2>
+    
+    <label for="inputText">Teks Bahasa Indonesia:</label>
+    <textarea id="inputText" placeholder="Masukkan kalimat..."></textarea>
+    
+    <label for="targetStyle">Gaya Bahasa Target:</label>
+    <select id="targetStyle">
+        <option value="Ngoko Alus">Ngoko Alus</option>
+        <option value="Krama Inggil">Krama Inggil</option>
+    </select>
+    
+    <br>
+    <button onclick="terjemahkan()">Terjemahkan</button>
+
+    <h3>Hasil Terjemahan:</h3>
+    <div id="output" class="output-box">Hasil akan muncul di sini...</div>
+
+    <script>
+        async function terjemahkan() {
+            const text = document.getElementById('inputText').value;
+            const target = document.getElementById('targetStyle').value;
+            const outputDiv = document.getElementById('output');
+
+            if (!text.trim()) {
+                alert('Silakan masukkan teks terlebih dahulu.');
+                return;
+            }
+
+            outputDiv.innerText = "Sedang menerjemahkan...";
+
+            try {
+                // Ganti URL ini dengan URL Vercel Function Anda setelah dipublikasikan (Langkah 5)
+                const response = await fetch('HTTPS://NAMA-PROJECT-VERCEL-ANDA.vercel.app/api/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, targetStyle: target })
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    outputDiv.innerText = "Terjadi kesalahan: " + data.error;
+                } else {
+                    outputDiv.innerText = data.result;
+                }
+            } catch (err) {
+                outputDiv.innerText = "Gagal terhubung ke server.";
+            }
+        }
+    </script>
+</body>
+</html>
