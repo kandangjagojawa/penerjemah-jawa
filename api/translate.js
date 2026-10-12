@@ -1,12 +1,10 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
 export default async function handler(req, res) {
-    // Pengaturan CORS agar GitHub Pages dapat mengakses endpoint ini
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Menangani preflight request dari browser
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
@@ -22,13 +20,9 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Menginisialisasi Gemini menggunakan @google/generative-ai
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        
-        // Memilih model dan menyematkan System Instruction beserta contoh
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.5-flash",
-            systemInstruction: `
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+        const systemInstruction = `
 Kamu adalah ahli tata bahasa Jawa (penerjemah profesional) yang sangat menguasai unggah-ungguh basa.
 Tugasmu adalah menerjemahkan teks dari Bahasa Indonesia ke Bahasa Jawa ragam ${targetStyle}.
 
@@ -60,27 +54,20 @@ CONTOH TERJEMAHAN SEBAGAI REFERENSI:
 
 INSTRUKSI AKHIR:
 Hanya berikan hasil terjemahannya saja tanpa penjelasan tambahan, catatan, atau awalan/akhiran apa pun. Pastikan ejaan tepat.
-            `
+        `;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: `Terjemahkan kalimat berikut ke ${targetStyle}:\n"${text}"`,
+            config: {
+                systemInstruction: systemInstruction,
+                temperature: 0.2 // Temperature rendah agar konsisten dan tidak berimajinasi
+            }
         });
 
-        // Konfigurasi parameter model
-        const generationConfig = {
-            temperature: 0.2, // Temperature rendah agar terjemahan baku dan tidak melenceng
-        };
-
-        // Melakukan request terjemahan
-        const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: `Terjemahkan kalimat berikut ke ${targetStyle}:\n"${text}"` }] }],
-            generationConfig,
-        });
-        
-        // Mengambil teks balasan dari AI
-        const responseText = result.response.text();
-
-        // Mengirimkan hasil ke GitHub Pages (Frontend)
-        return res.status(200).json({ result: responseText.trim() });
+        return res.status(200).json({ result: response.text.trim() });
     } catch (error) {
-        console.error("Error dari Gemini:", error);
-        return res.status(500).json({ error: 'Gagal memproses permintaan AI. Pastikan API Key valid.' });
+        console.error(error);
+        return res.status(500).json({ error: 'Gagal memproses permintaan AI.' });
     }
 }
