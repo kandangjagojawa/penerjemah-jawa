@@ -29,7 +29,7 @@ Hanya berikan hasil terjemahannya saja tanpa penjelasan tambahan.`;
 
         const completion = await openai.chat.completions.create({
             // Memperbaiki nama model menggunakan tanda hubung (-)
-            model: "respan/span-01-lite:free",
+            model: "qwen/qwen-2-7b-instruct:free",
             messages: [
                 { role: "system", content: systemInstruction },
                 { role: "user", content: `Terjemahkan ke ${targetStyle}:\n"${text}"` }
