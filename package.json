@@ -1,8 +1,7 @@
 {
   "name": "penerjemah-jawa-backend",
   "version": "1.0.0",
-  "type": "module",
   "dependencies": {
-    "@google/generative-ai": "^0.21.0"
+    "@google/genai": "^0.1.1"
   }
 }
