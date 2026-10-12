@@ -40,3 +40,4 @@ Hanya berikan hasil terjemahannya saja tanpa penjelasan tambahan.`;
         return res.status(500).json({ error: 'Gagal memproses permintaan AI. Coba lagi.' });
     }
 }
+
