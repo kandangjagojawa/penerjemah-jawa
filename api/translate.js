@@ -68,6 +68,6 @@ Hanya berikan hasil terjemahannya saja tanpa penjelasan tambahan, catatan, atau 
         return res.status(200).json({ result: responseText.trim() });
     } catch (error) {
         console.error("Error dari Gemini:", error);
-        return res.status(500).json({ error: 'Gagal memproses permintaan AI. Pastikan API Key valid.' });
+        return res.status(500).json({ error: 'Server sedang sibuk. Tekan terjemahan lagi setelah beberapa saat.' });
     }
 }
